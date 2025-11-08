@@ -8,9 +8,9 @@ const DashboardAdmin = () => {
   console.log('Dashboard rendered!');
   const [stats, setStats] = useState({
     total_owners: 0,
-    total_peternaks: 0,
-    total_guest_requests: 0,
-    recent_requests: [],
+    total_peternak: 0,
+    pending_request: 0,
+    recent_request: [],
   });
   const [loading, setLoading] = useState(true);
 
@@ -38,8 +38,16 @@ const DashboardAdmin = () => {
   );
 
   const RequestCard = ({ request }) => {
-    const roleName = request.user && request.user.role ? request.user.role.name : request.role || 'Guest';
-    const userName = request.user ? request.user.name : request.name;
+    const roleName = (request.user && request.user.role ? request.user.role.name : request.role) || 'Guest';
+        let userName = (request.user ? request.user.name : request.name); 
+        if (!userName) { // Jika nama kosong
+      if (roleName === 'Guest') {
+        userName = 'Guest'; // Fallback khusus Guest
+      } else {
+        userName = 'Nama Tidak Tersedia'; // Fallback lain
+      }
+    }
+    const displayTime = request.created_at || 'undefined';
 
     return (
       <div className="bg-white rounded-xl p-5 border border-gray-200 shadow hover:shadow-lg transition-all">
@@ -58,15 +66,9 @@ const DashboardAdmin = () => {
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span>{new Date(request.created_at).toLocaleString('id-ID', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}</span>
+                <span>{displayTime}</span>
             </div>
             <p className="text-sm text-gray-700">{request.type}</p>
           </div>
@@ -98,8 +100,8 @@ const DashboardAdmin = () => {
           {/* Stats Cards */}
           <div className="grid grid-cols-3 gap-8">
             <StatCard title="Total Pengguna Owner" value={stats.total_owners} color="blue" />
-            <StatCard title="Total Pengguna Peternak" value={stats.total_peternaks} color="blue" />
-            <StatCard title="Total Laporan Guest" value={stats.total_guest_requests} color="blue" />
+            <StatCard title="Total Pengguna Peternak" value={stats.total_peternak} color="blue" />
+            <StatCard title="Total Laporan Guest" value={stats.pending_requests} color="blue" />
           </div>
 
           {/* Recent Requests */}

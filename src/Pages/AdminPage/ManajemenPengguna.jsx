@@ -11,7 +11,7 @@ const ManajemenPengguna = () => {
   const [modalType, setModalType] = useState(''); // 'add', 'edit', 'delete'
   const [selectedUser, setSelectedUser] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [stats, setStats] = useState({ total: 0, owners: 0, peternaks: 0 });
+  const [stats, setStats] = useState({ total: 0, owner: 0, peternak: 0 });
 
   const [formData, setFormData] = useState({
     name: '',
@@ -34,11 +34,11 @@ const ManajemenPengguna = () => {
       });
       console.log('Response users:', response.data);
       setUsers(response.data.data?.users || []);
-      setStats(response.data.data?.stats || { total: 0, owners: 0, peternaks: 0 });
+      setStats(response.data.data?.stats || { total: 0, owner: 0, peternak: 0 });
     } catch (error) {
       console.error('Error fetching users:', error.response || error.message);
       setUsers([]);
-      setStats({ total: 0, owners: 0, peternaks: 0 });
+      setStats({ total: 0, owner: 0, peternak: 0 });
     } finally {
       setLoading(false);
     }
@@ -134,11 +134,11 @@ const ManajemenPengguna = () => {
             </div>
             <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
               <h3 className="text-sm font-medium text-gray-600 mb-2 text-center">Total Pengguna Owner</h3>
-              <p className="text-4xl font-bold text-blue-500 text-center">{stats.owners}</p>
+              <p className="text-4xl font-bold text-blue-500 text-center">{stats.owner}</p>
             </div>
             <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
               <h3 className="text-sm font-medium text-gray-600 mb-2 text-center">Total Pengguna Peternak</h3>
-              <p className="text-4xl font-bold text-blue-500 text-center">{stats.peternaks}</p>
+              <p className="text-4xl font-bold text-blue-500 text-center">{stats.peternak}</p>
             </div>
           </div>
 
