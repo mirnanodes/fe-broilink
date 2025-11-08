@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axiosInstance from "../../utils/axios";
 import NavbarAdmin from '../../components/NavbarAdmin'; // ⬅️ Naik 2 level (..)
 import SidebarAdmin from '../../components/SidebarAdmin';
 
@@ -27,22 +27,25 @@ const ManajemenPengguna = () => {
   }, [currentPage]);
 
   const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get('/api/admin/users', {
-        params: { page: currentPage }
-      });
-      console.log('Response users:', response.data);
-      setUsers(response.data.data?.users || []);
-      setStats(response.data.data?.stats || { total: 0, owner: 0, peternak: 0 });
-    } catch (error) {
-      console.error('Error fetching users:', error.response || error.message);
-      setUsers([]);
-      setStats({ total: 0, owner: 0, peternak: 0 });
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+    const response = await axiosInstance.get('/api/admin/users', {  // ⬅️ Pakai axiosInstance
+      params: { page: currentPage }
+    });
+    console.log('Response users:', response.data);
+    
+    // ⬅️ FIX: Sama kayak Dashboard
+    const data = response.data.data;
+    setUsers(data.users || []);
+    setStats(data.stats || { total: 0, owner: 0, peternak: 0 });
+  } catch (error) {
+    console.error('Error fetching users:', error.response || error.message);
+    setUsers([]);
+    setStats({ total: 0, owner: 0, peternak: 0 });
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) {

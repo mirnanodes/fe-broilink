@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axiosInstance from "../../utils/axios";
 import NavbarAdmin from '../../components/NavbarAdmin'; // ⬅️ Naik 2 level (..)
 import SidebarAdmin from '../../components/SidebarAdmin';
 
@@ -51,7 +51,7 @@ const KonfigurasiKandang = () => {
       initial_population: '', farm_area: '',
     };
     try {
-      const response = await axios.get('/api/admin/farm-config');
+      const response = await axiosInstance.get('/api/admin/farm-config');
       console.log('Response config:', response.data);
       setConfig(response.data.data || defaultConfig);
     } catch (error) {
@@ -66,7 +66,7 @@ const KonfigurasiKandang = () => {
     e.preventDefault();
     setSaving(true);
     try {
-      await axios.put('/api/admin/farm-config', config);
+      await axiosInstance.put('/api/admin/farm-config', config);
       setModalMessage('Konfigurasi berhasil disimpan!');
       setShowSuccessModal(true);
     } catch (error) {
@@ -79,7 +79,7 @@ const KonfigurasiKandang = () => {
 
   const handleReset = async () => {
     try {
-      await axios.post('/api/admin/farm-config/reset');
+      await axiosInstance.post('/api/admin/farm-config/reset');
       setModalMessage('Konfigurasi berhasil direset ke default!');
       setShowResetModal(false);
       setShowSuccessModal(true);

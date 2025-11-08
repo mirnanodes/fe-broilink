@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axiosInstance from "../../utils/axios";
 import NavbarAdmin from '../../components/NavbarAdmin'; // ⬅️ Naik 2 level (..)
 import SidebarAdmin from '../../components/SidebarAdmin';
 
@@ -17,7 +17,7 @@ const RiwayatLaporan = () => {
     try {
       setLoading(true);
       const sortOrder = filter === 'Terbaru' ? 'desc' : 'asc';
-      const response = await axios.get('/api/admin/request-logs', {
+      const response = await axiosInstance.get('/api/admin/request-logs', {
         params: { page: currentPage, sort: sortOrder }
       });
       console.log('Response logs:', response.data);
@@ -32,7 +32,7 @@ const RiwayatLaporan = () => {
 
   const handleStatusUpdate = async (logId, newStatus) => {
     try {
-      await axios.put(`/api/admin/request-logs/${logId}`, { status: newStatus });
+      await axiosInstance.put(`/api/admin/request-logs/${logId}`, { status: newStatus });
       fetchLogs();
       setShowDetailModal(false);
     } catch (error) {
