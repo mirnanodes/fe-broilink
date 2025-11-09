@@ -53,37 +53,36 @@ const ManajemenPengguna = () => {
       return;
     }
     try {
-      const response = await axios.get('/api/admin/users/search', {
-        params: { query: searchQuery }
-      });
-      console.log('Search response:', response.data);
-      setUsers(response.data.data || []);
-    } catch (error) {
-      console.error('Error searching users:', error.response || error.message);
-      setUsers([]);
-    }
+    const response = await axiosInstance.get('/api/admin/users', { 
+      params: { search: searchQuery }  
+    });
+    setUsers(response.data.data.users || []);
+  } catch (error) {
+    console.error('Error searching users:', error);
+    setUsers([]);
+  }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (modalType === 'add') {
-        await axios.post('/api/admin/users', formData);
-      } else if (modalType === 'edit') {
-        await axios.put(`/api/admin/users/${selectedUser.id}`, formData);
-      }
-      setShowModal(false);
-      fetchUsers();
-      resetForm();
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      alert(error.response?.data?.message || 'Terjadi kesalahan');
+    if (modalType === 'add') {
+      await axiosInstance.post('/api/admin/users', formData);  
+    } else if (modalType === 'edit') {
+      await axiosInstance.put(`/api/admin/users/${selectedUser.user_id}`, formData);  
     }
+    setShowModal(false);
+    fetchUsers();
+    resetForm();
+  } catch (error) {
+    console.error('Error submitting form:', error);
+    alert(error.response?.data?.message || 'Terjadi kesalahan');
+  }
   };
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`/api/admin/users/${selectedUser.id}`);
+      await axiosInstance.delete(`/api/admin/users/${selectedUser.user_id}`);
       setShowModal(false);
       fetchUsers();
     } catch (error) {
