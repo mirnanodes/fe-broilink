@@ -1,30 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import axiosInstance from "../../utils/axios";
-import NavbarAdmin from '../../components/NavbarAdmin'; // ⬅️ Naik 2 level (..)
+import NavbarAdmin from '../../components/NavbarAdmin'; 
 import SidebarAdmin from '../../components/SidebarAdmin';
 
 const RiwayatLaporan = () => {
-  const [logs, setLogs] = useState([]);
+  const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('Terbaru');
   const [currentPage, setCurrentPage] = useState(1);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedLog, setSelectedLog] = useState(null);
 
-  useEffect(() => { fetchLogs(); }, [currentPage, filter]);
+  useEffect(() => { fetchRequests(); }, [currentPage, filter]);
 
-  const fetchLogs = async () => {
+  const fetchRequests = async () => {
     try {
       setLoading(true);
       const sortOrder = filter === 'Terbaru' ? 'desc' : 'asc';
-      const response = await axiosInstance.get('/api/admin/request-logs', {
+      const response = await axiosInstance.get('/api/admin/requests', {
         params: { page: currentPage, sort: sortOrder }
       });
-      console.log('Response logs:', response.data);
-      setLogs(response.data.data || []);
+      console.log('Response Requests:', response.data);
+      setRequests(response.data.data || []);
     } catch (error) {
-      console.error('Error fetching logs:', error.response || error.message);
-      setLogs([]);
+      console.error('Error fetching Requests:', error.response || error.message);
+      setRequests([]);
     } finally {
       setLoading(false);
     }
@@ -32,8 +32,8 @@ const RiwayatLaporan = () => {
 
   const handleStatusUpdate = async (logId, newStatus) => {
     try {
-      await axiosInstance.put(`/api/admin/request-logs/${logId}`, { status: newStatus });
-      fetchLogs();
+      await axiosInstance.put(`/api/admin/requests/${logId}/status`, { status: newStatus });
+      fetchRequests();
       setShowDetailModal(false);
     } catch (error) {
       console.error('Error updating status:', error);
@@ -43,10 +43,10 @@ const RiwayatLaporan = () => {
 
   const getStatusColor = (status) => {
     const colors = {
-      'Menunggu Diproses': 'bg-yellow-100 text-yellow-700',
-      'Sedang Diproses': 'bg-blue-100 text-blue-700',
-      'Selesai': 'bg-green-100 text-green-700',
-      'Ditolak': 'bg-red-100 text-red-700',
+      'Waiting': 'bg-yellow-100 text-yellow-700',
+      'Processing': 'bg-blue-100 text-blue-700',
+      'Done': 'bg-green-100 text-green-700',
+      'Denied': 'bg-red-100 text-red-700',
     };
     return colors[status] || 'bg-gray-100 text-gray-700';
   };
@@ -98,14 +98,14 @@ const RiwayatLaporan = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {logs.length === 0 ? (
+                  {requests.length === 0 ? (
                     <tr>
                       <td colSpan="7" className="text-center py-12 text-gray-500">
                         <p>Belum ada laporan</p>
                       </td>
                     </tr>
                   ) : (
-                    logs.map((log, index) => (
+                    requests.map((log, index) => (
                       <tr key={log.id} className="hover:bg-gray-50 transition-colors">
                         <td className="px-4 py-4 text-sm text-gray-900">{(currentPage - 1) * 10 + index + 1}</td>
                         <td className="px-4 py-4 text-sm font-medium text-gray-900">{log.user?.name || log.name || 'Guest'}</td>

@@ -225,7 +225,7 @@ const ManajemenPengguna = () => {
                               </span>
                             </td>
                             <td className="px-4 py-4 text-sm text-gray-600">
-                              {new Date(user.created_at).toLocaleDateString('id-ID')}
+                              {new Date(user.date_joined).toLocaleDateString('id-ID')}
                             </td>
                             <td className="px-4 py-4 text-sm text-gray-600">
                               {user.last_login ? new Date(user.last_login).toLocaleDateString('id-ID') : '—'}
