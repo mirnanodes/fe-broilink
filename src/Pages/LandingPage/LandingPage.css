@@ -1,0 +1,443 @@
+/* src/pages/LandingPage/LandingPage.css */
+
+/* --- General & Typography --- */
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    color: #333;
+    background-color: #f8f9fa;
+}
+
+h1, h2, h3, h4 {
+    color: #212529;
+}
+
+.btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+
+.btn-main {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-main:hover {
+    background-color: #0056b3;
+}
+
+.section-title {
+    text-align: center;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.section-subtitle {
+    text-align: center;
+    color: #6c757d;
+    font-size: 16px;
+    margin-bottom: 50px;
+}
+
+
+/* --- Header (Navbar) --- */
+.header {
+    background-color: white;
+    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 900;
+    color: #212529;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #495057;
+    margin-left: 30px;
+    font-size: 15px;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: #007bff;
+}
+
+.btn-login {
+    background-color: #007bff;
+    color: white;
+    padding: 8px 18px;
+}
+
+.btn-login:hover {
+    background-color: #0056b3;
+}
+
+
+/* --- Hero Section --- */
+.hero-section {
+    max-width: 1200px;
+    margin: 50px auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 40px;
+    align-items: center;
+}
+
+.hero-content {
+    flex: 1;
+}
+
+.clean-chicken-tag {
+    background-color: #e6f7e9;
+    color: #28a745;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    display: inline-block;
+}
+
+.hero-content h1 {
+    font-size: 48px;
+    line-height: 1.2;
+    margin-bottom: 20px;
+}
+
+.hero-content p {
+    color: #6c757d;
+    margin-bottom: 30px;
+}
+
+.hero-checks {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 30px;
+    color: #28a745;
+}
+
+.hero-checks li {
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.hero-image { /* Gaya untuk tag <img> */
+    width: 100%;
+    max-width: 500px;
+    height: 350px;
+    object-fit: cover; /* Penting untuk menjaga rasio gambar */
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.hero-image-container {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+}
+
+
+.tingkat-kelangsungan{
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.tingkat-kelembagaan span {
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.tingkat-kelembagaan .percentage {
+    font-size: 24px;
+    font-weight: bold;
+    color: #212529;
+}
+
+
+/* --- Fitur Section --- */
+.feature-section {
+    background-color: #f8f9fa;
+    padding: 80px 20px;
+}
+
+.feature-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
+
+.feature-card {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    width: 30%;
+    text-align: center;
+    border: 1px solid #e9ecef;
+}
+
+.feature-icon {
+    font-size: 40px;
+    margin-bottom: 15px;
+    color: #28a745;
+}
+
+
+/* --- Keunggulan Section --- */
+.keunggulan-section {
+    padding: 80px 20px;
+    background-color: #e6f7ff; /* Warna latar belakang biru muda */
+}
+
+.keunggulan-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
+
+.keunggulan-card {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    width: 30%;
+    text-align: center;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.keunggulan-icon {
+    font-size: 30px;
+    margin-bottom: 10px;
+}
+
+/* --- Testimoni Section --- */
+.testimoni-section {
+    padding: 80px 20px;
+}
+
+.testimoni-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
+
+.testimoni-card {
+    background-color: #f1fff1; /* Latar hijau muda */
+    border: 1px solid #d4edda;
+    border-radius: 8px;
+    padding: 25px;
+    width: 45%;
+    display: flex;
+    align-items: flex-start;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #28a745;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    font-weight: bold;
+    margin-right: 15px;
+}
+
+.testimoni-content .name {
+    font-weight: bold;
+    margin: 0;
+}
+
+.testimoni-content .role {
+    font-size: 12px;
+    color: #6c757d;
+    margin-bottom: 10px;
+}
+
+.testimoni-content .text {
+    font-style: italic;
+    color: #495057;
+}
+
+
+/* --- Harga Section --- */
+.pricing-section {
+    padding: 80px 20px;
+    background-color: #f8f9fa;
+}
+
+.pricing-grid {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
+
+.pricing-card {
+    background-color: white;
+    padding: 40px 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    width: 40%;
+    text-align: center;
+    border: 1px solid #e9ecef;
+    position: relative;
+}
+
+.pricing-card.featured {
+    border-color: #007bff;
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.2);
+}
+
+.featured-tag {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #007bff;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.plan-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.plan-price {
+    font-size: 48px;
+    font-weight: 700;
+    color: #212529;
+    margin-bottom: 30px;
+}
+
+.plan-price::before {
+    content: "Mulai dari ";
+    display: block;
+    font-size: 14px;
+    font-weight: normal;
+    color: #6c757d;
+}
+
+.plan-features {
+    list-style: none;
+    padding: 0;
+    text-align: left;
+    margin-bottom: 40px;
+}
+
+.plan-features li {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    color: #495057;
+}
+
+.btn-plan {
+    width: 100%;
+    background-color: #e9ecef;
+    color: #212529;
+}
+
+.pricing-card.featured .btn-plan {
+    background-color: #007bff;
+    color: white;
+}
+
+.pricing-card.featured .btn-plan:hover {
+    background-color: #0056b3;
+}
+
+
+/* --- Footer --- */
+.main-footer {
+    background-color: #212529;
+    color: #adb5bd;
+    padding: 50px 20px 20px;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 30px;
+    border-bottom: 1px solid #495057;
+    padding-bottom: 30px;
+    margin-bottom: 20px;
+}
+
+.footer-brand {
+    width: 300px;
+}
+
+.footer-brand .logo {
+    color: white;
+    margin-bottom: 15px;
+}
+
+.footer-brand p {
+    font-size: 14px;
+    margin: 5px 0;
+}
+
+.footer-links-group h4 {
+    color: white;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.footer-links-group ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-links-group a {
+    text-decoration: none;
+    color: #adb5bd;
+    font-size: 14px;
+    line-height: 2;
+}
+
+.footer-links-group a:hover {
+    color: #007bff;
+}
