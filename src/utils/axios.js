@@ -10,7 +10,7 @@ const getCookie = (name) => {
 
 // Create axios instance with base configuration
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL + '/api' || 'http://localhost:8000/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
   timeout: import.meta.env.VITE_API_TIMEOUT || 30000,
   headers: {
     'Content-Type': 'application/json',

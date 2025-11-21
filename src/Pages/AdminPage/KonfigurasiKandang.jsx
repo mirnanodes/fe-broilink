@@ -76,6 +76,16 @@ const KonfigurasiKandang = () => {
     } catch (error) {
       const errorMessage = handleError('KonfigurasiKandang fetchFarms', error);
       console.error(errorMessage);
+      // Fallback to mock data when API fails
+      const mockFarms = [
+        { id: 1, farm_id: 1, name: 'Kandang A - Brebes', farm_name: 'Kandang A - Brebes' },
+        { id: 2, farm_id: 2, name: 'Kandang B - Tegal', farm_name: 'Kandang B - Tegal' },
+        { id: 3, farm_id: 3, name: 'Kandang C - Pemalang', farm_name: 'Kandang C - Pemalang' }
+      ];
+      setFarms(mockFarms);
+      if (!selectedKandang) {
+        setSelectedKandang(mockFarms[0].farm_id);
+      }
     }
   };
 
@@ -88,6 +98,8 @@ const KonfigurasiKandang = () => {
     } catch (error) {
       const errorMessage = handleError('KonfigurasiKandang fetchConfig', error);
       console.error(errorMessage);
+      // Keep default config when API fails (already in state)
+      console.log('Using default configuration values');
     } finally {
       setLoading(false);
     }
