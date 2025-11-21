@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axiosInstance from '../../utils/axios';
+import RequestModal from '../../components/RequestModal';
 
 const Dashboard = () => {
   const [selectedFilter, setSelectedFilter] = useState('Mortalitas');
-  
+  const [showRequestModal, setShowRequestModal] = useState(false);
+
   // nb: state dengan default data, struktur HTML TETAP SAMA
   const [farmData, setFarmData] = useState({
     name: 'Kandang A',
@@ -62,8 +64,7 @@ const Dashboard = () => {
   }, []);
 
   const handlePengajuan = () => {
-    console.log('Pengajuan Permintaan');
-    alert('Form pengajuan permintaan akan dibuka');
+    setShowRequestModal(true);
   };
 
   return (
@@ -166,6 +167,10 @@ const Dashboard = () => {
           </tbody>
         </table>
       </div>
+
+      {showRequestModal && (
+        <RequestModal onClose={() => setShowRequestModal(false)} />
+      )}
     </div>
   );
 };
