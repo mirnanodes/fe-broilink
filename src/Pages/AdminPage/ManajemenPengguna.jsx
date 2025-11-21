@@ -1,45 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import axiosInstance from "../../utils/axios";
-import { USE_MOCK_DATA } from '../../config/api';
+import adminService from '../../services/adminService';
+import { handleError } from '../../utils/errorHandler';
 import NavbarAdmin from '../../components/NavbarAdmin';
 import SidebarAdmin from '../../components/SidebarAdmin';
 
-const mockUsers = [
-  {
-    user_id: 1,
-    username: 'owner1',
-    name: 'owner1',
-    role: { name: 'Owner' },
-    role_id: 2,
-    date_joined: '2024-01-15',
-    last_login: '2025-11-17',
-    email: 'owner1@mail.com',
-    phone_number: '081234567890'
-  },
-  {
-    user_id: 2,
-    username: 'peternak1',
-    name: 'peternak1',
-    role: { name: 'Peternak' },
-    role_id: 3,
-    date_joined: '2024-02-20',
-    last_login: '2025-10-01',
-    email: 'peternak1@mail.com',
-    phone_number: '081298765432'
-  }
-];
-
-const mockStats = { total: 2, owner: 1, peternak: 1 };
-
 const ManajemenPengguna = () => {
-  const [users, setUsers] = useState(mockUsers);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [stats, setStats] = useState(mockStats);
+  const [stats, setStats] = useState({ total: 0, owner: 0, peternak: 0 });
   const [activeTab, setActiveTab] = useState('peternak');
   const [showAddFarmModal, setShowAddFarmModal] = useState(false);
   const [selectedOwner, setSelectedOwner] = useState(null);
@@ -61,10 +34,8 @@ const ManajemenPengguna = () => {
   });
 
   useEffect(() => {
-    if (!USE_MOCK_DATA) {
-      fetchUsers();
-      fetchOwners();
-    }
+    fetchUsers();
+    fetchOwners();
   }, [currentPage]);
 
   const calculateStatus = (lastLogin) => {
@@ -78,16 +49,14 @@ const ManajemenPengguna = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await axiosInstance.get('/api/admin/users', {
-        params: { page: currentPage }
-      });
-      const data = response.data.data;
-      setUsers(data.users || []);
-      setStats(data.stats || mockStats);
+      const response = await adminService.getUsers();
+      const data = response.data.data || response.data;
+      setUsers(data.users || data || []);
+      setStats(data.stats || { total: 0, owner: 0, peternak: 0 });
     } catch (error) {
-      console.error('Error fetching users:', error);
-      setUsers(mockUsers);
-      setStats(mockStats);
+      const errorMessage = handleError('ManajemenPengguna fetchUsers', error);
+      console.error(errorMessage);
+      setUsers([]);
     } finally {
       setLoading(false);
     }
@@ -95,37 +64,28 @@ const ManajemenPengguna = () => {
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) {
-      if (!USE_MOCK_DATA) fetchUsers();
-      else setUsers(mockUsers);
-      return;
-    }
-    if (USE_MOCK_DATA) {
-      const filtered = mockUsers.filter(u =>
-        u.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        u.email.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setUsers(filtered);
+      fetchUsers();
       return;
     }
     try {
-      const response = await axiosInstance.get('/api/admin/users', {
-        params: { search: searchQuery }
-      });
-      setUsers(response.data.data.users || []);
+      const response = await adminService.getUsers(searchQuery);
+      const data = response.data.data || response.data;
+      setUsers(data.users || data || []);
     } catch (error) {
-      console.error('Error searching users:', error);
+      const errorMessage = handleError('ManajemenPengguna handleSearch', error);
+      console.error(errorMessage);
       setUsers([]);
     }
   };
 
   const fetchOwners = async () => {
     try {
-      const response = await axiosInstance.get('/api/admin/users', {
-        params: { role: 'Owner' }
-      });
-      setOwners(response.data.data.users || []);
+      const response = await adminService.getOwners();
+      const data = response.data.data || response.data;
+      setOwners(data || []);
     } catch (error) {
-      console.error('Error fetching owners:', error);
+      const errorMessage = handleError('ManajemenPengguna fetchOwners', error);
+      console.error(errorMessage);
       setOwners([]);
     }
   };
@@ -137,15 +97,9 @@ const ManajemenPengguna = () => {
 
   const handleAddFarm = async (e) => {
     e.preventDefault();
-    if (USE_MOCK_DATA) {
-      alert('Kandang berhasil ditambahkan! (mock)');
-      setShowAddFarmModal(false);
-      setSelectedOwner(null);
-      return;
-    }
     const formData = new FormData(e.target);
     try {
-      await axiosInstance.post('/api/admin/farms', {
+      await adminService.createFarm({
         owner_id: selectedOwner.user_id,
         farm_name: formData.get('farm_name'),
         location: formData.get('location'),
@@ -156,19 +110,13 @@ const ManajemenPengguna = () => {
       setShowAddFarmModal(false);
       setSelectedOwner(null);
     } catch (error) {
-      console.error('Error adding farm:', error);
-      alert('Gagal menambah kandang: ' + (error.response?.data?.message || error.message));
+      const errorMessage = handleError('ManajemenPengguna handleAddFarm', error);
+      alert('Gagal menambah kandang: ' + errorMessage);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (USE_MOCK_DATA) {
-      alert('Berhasil! (mock)');
-      setShowModal(false);
-      resetForm();
-      return;
-    }
     try {
       if (modalType === 'add') {
         const payload = {
@@ -192,9 +140,9 @@ const ManajemenPengguna = () => {
           payload.owner_id = formData.owner_id;
         }
 
-        await axiosInstance.post('/api/admin/users', payload);
+        await adminService.createUser(payload);
       } else if (modalType === 'edit') {
-        await axiosInstance.put(`/api/admin/users/${selectedUser.user_id}`, formData);
+        await adminService.updateUser(selectedUser.user_id, formData);
       }
 
       setShowModal(false);
@@ -202,24 +150,19 @@ const ManajemenPengguna = () => {
       resetForm();
       alert('Berhasil!');
     } catch (error) {
-      console.error('Error submitting form:', error);
-      alert(error.response?.data?.message || 'Terjadi kesalahan');
+      const errorMessage = handleError('ManajemenPengguna handleSubmit', error);
+      alert(errorMessage);
     }
   };
 
   const handleDelete = async () => {
-    if (USE_MOCK_DATA) {
-      alert('User berhasil dihapus! (mock)');
-      setShowModal(false);
-      return;
-    }
     try {
-      await axiosInstance.delete(`/api/admin/users/${selectedUser.user_id}`);
+      await adminService.deleteUser(selectedUser.user_id);
       setShowModal(false);
       fetchUsers();
     } catch (error) {
-      console.error('Error deleting user:', error);
-      alert(error.response?.data?.message || 'Terjadi kesalahan');
+      const errorMessage = handleError('ManajemenPengguna handleDelete', error);
+      alert(errorMessage);
     }
   };
 
@@ -443,7 +386,7 @@ const ManajemenPengguna = () => {
 
           {showModal && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-xl">
+              <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-xl max-h-[90vh] overflow-y-auto">
                 {modalType === 'delete' ? (
                   <>
                     <h3 className="text-xl font-bold text-gray-900 mb-4">Konfirmasi Penghapusan</h3>
@@ -535,7 +478,7 @@ const ManajemenPengguna = () => {
                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 required
                               >
-                                <option value="">Peternak ini akan ditugaskan ke Owner tertentu, pilih Owner.</option>
+                                <option value="">Pilih Owner</option>
                                 {owners.map(o => (
                                   <option key={o.user_id} value={o.user_id}>{o.name}</option>
                                 ))}
@@ -649,31 +592,6 @@ const ManajemenPengguna = () => {
                               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                             />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                            <select
-                              value={formData.role_id}
-                              onChange={(e) => setFormData({ ...formData, role_id: e.target.value })}
-                              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                              required
-                            >
-                              <option value="">Pilih Role</option>
-                              <option value="2">Owner</option>
-                              <option value="3">Peternak</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                            <select
-                              value={formData.status}
-                              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                              required
-                            >
-                              <option value="active">Aktif</option>
-                              <option value="inactive">Nonaktif</option>
-                            </select>
                           </div>
                         </>
                       )}

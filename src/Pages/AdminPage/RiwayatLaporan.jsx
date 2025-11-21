@@ -1,101 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import axiosInstance from "../../utils/axios";
-import { USE_MOCK_DATA } from '../../config/api';
+import adminService from '../../services/adminService';
+import { handleError } from '../../utils/errorHandler';
 import NavbarAdmin from '../../components/NavbarAdmin';
 import SidebarAdmin from '../../components/SidebarAdmin';
 
-const mockRequests = [
-  {
-    id: 1,
-    name: 'owner1',
-    role: 'Owner',
-    phone: '081234567890',
-    created_at: '2025-11-17T10:30:00',
-    request_type: 'Tambah Kandang',
-    status: 'menunggu'
-  },
-  {
-    id: 2,
-    name: 'guest',
-    role: '-',
-    phone: '081298765432',
-    created_at: '2025-11-17T09:15:00',
-    request_type: '-',
-    status: 'menunggu'
-  },
-  {
-    id: 3,
-    name: 'owner2',
-    role: 'Owner',
-    phone: '081234123456',
-    created_at: '2025-11-16T14:20:00',
-    request_type: 'Tambah Peternak',
-    status: 'diproses'
-  },
-  {
-    id: 4,
-    name: 'peternak1',
-    role: 'Peternak',
-    phone: '081298123456',
-    created_at: '2025-11-16T11:45:00',
-    request_type: 'Update Data',
-    status: 'selesai'
-  },
-  {
-    id: 5,
-    name: 'guest',
-    role: '-',
-    phone: '081234999888',
-    created_at: '2025-11-15T16:30:00',
-    request_type: '-',
-    status: 'menunggu'
-  }
-];
-
 const RiwayatLaporan = () => {
-  const [requests, setRequests] = useState(mockRequests);
+  const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState('Terbaru');
   const [currentPage, setCurrentPage] = useState(1);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedLog, setSelectedLog] = useState(null);
-  const itemsPerPage = 5;
 
   useEffect(() => {
-    if (!USE_MOCK_DATA) {
-      fetchRequests();
-    }
+    fetchRequests();
   }, [currentPage, filter]);
 
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const sortOrder = filter === 'Terbaru' ? 'desc' : 'asc';
-      const response = await axiosInstance.get('/api/admin/requests', {
-        params: { page: currentPage, sort: sortOrder }
-      });
-      setRequests(response.data.data || []);
+      const sortOrder = filter === 'Terbaru' ? 'newest' : 'oldest';
+      const response = await adminService.getRequests(sortOrder, currentPage);
+      const data = response.data.data || response.data;
+      setRequests(data.requests || data || []);
     } catch (error) {
-      console.error('Error fetching Requests:', error);
-      setRequests(mockRequests);
+      const errorMessage = handleError('RiwayatLaporan fetchRequests', error);
+      console.error(errorMessage);
+      setRequests([]);
     } finally {
       setLoading(false);
     }
   };
 
   const handleStatusUpdate = async (logId, newStatus) => {
-    if (USE_MOCK_DATA) {
-      setRequests(prev => prev.map(r => r.id === logId ? { ...r, status: newStatus } : r));
-      setShowDetailModal(false);
-      return;
-    }
     try {
-      await axiosInstance.put(`/api/admin/requests/${logId}/status`, { status: newStatus });
+      await adminService.updateRequestStatus(logId, newStatus);
       fetchRequests();
       setShowDetailModal(false);
     } catch (error) {
-      console.error('Error updating status:', error);
-      alert(error.response?.data?.message || 'Gagal mengupdate status');
+      const errorMessage = handleError('RiwayatLaporan handleStatusUpdate', error);
+      alert('Gagal mengupdate status: ' + errorMessage);
     }
   };
 
@@ -118,14 +62,6 @@ const RiwayatLaporan = () => {
     const minutes = String(date.getMinutes()).padStart(2, '0');
     return `${year}/${month}/${day} ${hours}:${minutes}`;
   };
-
-  const sortedRequests = [...requests].sort((a, b) => {
-    const dateA = new Date(a.created_at);
-    const dateB = new Date(b.created_at);
-    return filter === 'Terbaru' ? dateB - dateA : dateA - dateB;
-  });
-
-  const paginatedRequests = sortedRequests.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   if (loading) {
     return (
@@ -174,16 +110,16 @@ const RiwayatLaporan = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {paginatedRequests.length === 0 ? (
+                  {requests.length === 0 ? (
                     <tr>
                       <td colSpan="7" className="text-center py-12 text-gray-500">
                         <p>Belum ada laporan</p>
                       </td>
                     </tr>
                   ) : (
-                    paginatedRequests.map((log, index) => (
+                    requests.map((log, index) => (
                       <tr key={log.id} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-4 py-4 text-sm text-gray-900">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                        <td className="px-4 py-4 text-sm text-gray-900">{(currentPage - 1) * 5 + index + 1}</td>
                         <td className="px-4 py-4 text-sm font-medium text-gray-900">{log.name || log.user?.name || 'Guest'}</td>
                         <td className="px-4 py-4 text-sm text-gray-600">{log.role || log.user?.role?.name || '—'}</td>
                         <td className="px-4 py-4 text-sm text-gray-600">{log.phone || log.whatsapp || '—'}</td>
@@ -218,7 +154,7 @@ const RiwayatLaporan = () => {
               </button>
               <button
                 onClick={() => setCurrentPage(p => p + 1)}
-                disabled={currentPage * itemsPerPage >= sortedRequests.length}
+                disabled={requests.length < 5}
                 className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
               >
                 {currentPage + 1}

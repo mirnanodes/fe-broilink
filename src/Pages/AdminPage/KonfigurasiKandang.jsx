@@ -1,34 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axiosInstance from "../../utils/axios";
-import { USE_MOCK_DATA } from '../../config/api';
+import adminService from '../../services/adminService';
+import { handleError } from '../../utils/errorHandler';
 import NavbarAdmin from '../../components/NavbarAdmin';
 import SidebarAdmin from '../../components/SidebarAdmin';
-
-const mockConfig = {
-  suhu_normal_min: 28,
-  suhu_normal_max: 32,
-  suhu_kritis_rendah: 25,
-  suhu_kritis_tinggi: 35,
-  kelembapan_normal_min: 60,
-  kelembapan_normal_max: 70,
-  kelembapan_kritis_rendah: 50,
-  kelembapan_kritis_tinggi: 80,
-  amonia_max: 20,
-  amonia_kritis: 30,
-  bobot_pertumbuhan_min: 100,
-  bobot_target: 2000,
-  pakan_min: 50,
-  minum_min: 100,
-  populasi_awal: 1000,
-  bobot_awal: 40,
-  luas_kandang: 100,
-  peternak_id: 2
-};
-
-const mockFarms = [
-  { farm_id: 1, name: 'Kandang Sleman' },
-  { farm_id: 2, name: 'Kandang Bantul' }
-];
 
 const InputGroup = ({ label, name, value, onChange, unit = '' }) => (
   <div>
@@ -49,31 +23,71 @@ const InputGroup = ({ label, name, value, onChange, unit = '' }) => (
 );
 
 const KonfigurasiKandang = () => {
-  const [config, setConfig] = useState(mockConfig);
+  const [config, setConfig] = useState({
+    suhu_normal_min: 28,
+    suhu_normal_max: 32,
+    suhu_kritis_rendah: 25,
+    suhu_kritis_tinggi: 35,
+    kelembapan_normal_min: 60,
+    kelembapan_normal_max: 70,
+    kelembapan_kritis_rendah: 50,
+    kelembapan_kritis_tinggi: 80,
+    amonia_max: 20,
+    amonia_kritis: 30,
+    bobot_pertumbuhan_min: 100,
+    bobot_target: 2000,
+    pakan_min: 50,
+    minum_min: 100,
+    populasi_awal: 1000,
+    bobot_awal: 40,
+    luas_kandang: 100,
+    peternak_id: 2
+  });
+  const [farms, setFarms] = useState([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showResetModal, setShowResetModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
-  const [selectedKandang, setSelectedKandang] = useState('1');
+  const [selectedKandang, setSelectedKandang] = useState('');
   const [hasDefault, setHasDefault] = useState(false);
 
   useEffect(() => {
+    fetchFarms();
     const defaultConfig = localStorage.getItem('defaultConfig');
     setHasDefault(!!defaultConfig);
-    if (!USE_MOCK_DATA) {
-      fetchConfig();
-    }
   }, []);
 
-  const fetchConfig = async () => {
+  useEffect(() => {
+    if (selectedKandang) {
+      fetchConfig(selectedKandang);
+    }
+  }, [selectedKandang]);
+
+  const fetchFarms = async () => {
+    try {
+      const response = await adminService.getFarms();
+      const data = response.data.data || response.data;
+      const farmList = data.farms || data || [];
+      setFarms(farmList);
+      if (farmList.length > 0 && !selectedKandang) {
+        setSelectedKandang(farmList[0].farm_id || farmList[0].id);
+      }
+    } catch (error) {
+      const errorMessage = handleError('KonfigurasiKandang fetchFarms', error);
+      console.error(errorMessage);
+    }
+  };
+
+  const fetchConfig = async (farmId) => {
     try {
       setLoading(true);
-      const response = await axiosInstance.get('/api/admin/farm-config');
-      setConfig(response.data.data || mockConfig);
+      const response = await adminService.getFarmConfig(farmId);
+      const data = response.data.data || response.data;
+      setConfig(data || config);
     } catch (error) {
-      console.error('Error fetching config:', error);
-      setConfig(mockConfig);
+      const errorMessage = handleError('KonfigurasiKandang fetchConfig', error);
+      console.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -88,20 +102,13 @@ const KonfigurasiKandang = () => {
       setHasDefault(true);
     }
 
-    if (USE_MOCK_DATA) {
-      setModalMessage('Konfigurasi berhasil disimpan! (mock)');
-      setShowSuccessModal(true);
-      setSaving(false);
-      return;
-    }
-
     try {
-      await axiosInstance.put('/api/admin/farm-config', config);
+      await adminService.updateFarmConfig(selectedKandang, config);
       setModalMessage('Konfigurasi berhasil disimpan!');
       setShowSuccessModal(true);
     } catch (error) {
-      console.error('Error saving config:', error);
-      alert(error.response?.data?.message || 'Gagal menyimpan konfigurasi');
+      const errorMessage = handleError('KonfigurasiKandang handleSubmit', error);
+      alert('Gagal menyimpan konfigurasi: ' + errorMessage);
     } finally {
       setSaving(false);
     }
@@ -114,23 +121,15 @@ const KonfigurasiKandang = () => {
       return;
     }
 
-    if (USE_MOCK_DATA) {
-      setConfig(JSON.parse(defaultConfig));
-      setModalMessage('Konfigurasi berhasil direset ke default! (mock)');
-      setShowResetModal(false);
-      setShowSuccessModal(true);
-      return;
-    }
-
     try {
-      await axiosInstance.post('/api/admin/farm-config/reset');
+      await adminService.resetFarmConfig(selectedKandang);
       setModalMessage('Konfigurasi berhasil direset ke default!');
       setShowResetModal(false);
       setShowSuccessModal(true);
-      fetchConfig();
+      fetchConfig(selectedKandang);
     } catch (error) {
-      console.error('Error resetting config:', error);
-      alert(error.response?.data?.message || 'Gagal reset konfigurasi');
+      const errorMessage = handleError('KonfigurasiKandang handleReset', error);
+      alert('Gagal reset konfigurasi: ' + errorMessage);
     }
   };
 
@@ -166,8 +165,10 @@ const KonfigurasiKandang = () => {
                 onChange={(e) => setSelectedKandang(e.target.value)}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
               >
-                {mockFarms.map(farm => (
-                  <option key={farm.farm_id} value={farm.farm_id}>{farm.name}</option>
+                {farms.map(farm => (
+                  <option key={farm.farm_id || farm.id} value={farm.farm_id || farm.id}>
+                    {farm.name || farm.farm_name}
+                  </option>
                 ))}
               </select>
             </div>

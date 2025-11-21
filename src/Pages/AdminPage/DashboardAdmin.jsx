@@ -1,39 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axiosInstance from "../../utils/axios";
-import { USE_MOCK_DATA } from '../../config/api';
+import adminService from '../../services/adminService';
+import { handleError } from '../../utils/errorHandler';
 import NavbarAdmin from '../../components/NavbarAdmin';
 import SidebarAdmin from '../../components/SidebarAdmin';
 
-const mockDashboard = {
-  total_owners: 2,
-  total_peternak: 4,
-  pending_requests: 3,
-  recent_requests: [
-    { id: 1, name: 'owner1', role: 'Owner', created_at: '15 Mei 2025, 18.30', type: 'Tambah Kandang' },
-    { id: 2, name: 'guest', role: '-', created_at: '15 Mei 2025, 17.20', type: '-' },
-    { id: 3, name: 'owner2', role: 'Owner', created_at: '14 Mei 2025, 10.15', type: 'Tambah Peternak' }
-  ]
-};
-
 const DashboardAdmin = () => {
-  const [stats, setStats] = useState(mockDashboard);
-  const [loading, setLoading] = useState(false);
+  const [stats, setStats] = useState({
+    total_owners: 0,
+    total_peternak: 0,
+    pending_requests: 0,
+    recent_requests: []
+  });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!USE_MOCK_DATA) {
-      fetchDashboardData();
-    }
+    fetchDashboardData();
   }, []);
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await axiosInstance.get('/api/admin/dashboard');
-      setStats(response.data.data);
+      const response = await adminService.getDashboard();
+      setStats(response.data.data || response.data);
     } catch (error) {
-      console.error('Error fetching dashboard:', error.response || error.message);
-      setStats(mockDashboard);
+      const errorMessage = handleError('DashboardAdmin fetchData', error);
+      console.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -110,7 +102,7 @@ const DashboardAdmin = () => {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900">Permintaan Terbaru</h2>
               <Link
-                to="/riwayat-laporan"
+                to="/admin/requests"
                 className="text-blue-500 hover:text-blue-600 text-sm font-medium flex items-center gap-1"
               >
                 Lihat Semua Laporan
