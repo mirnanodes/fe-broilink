@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance, { getCsrfCookie } from '../utils/axios';
-import './Login.css';
 
 const BroilinkLogo = () => (
   <div className="broilink-logo-container">

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import axiosInstance from '../../utils/axios';
-import './InputKerjaFarm.css';
 
 const InputHasilKerja = () => {
   const [formData, setFormData] = useState({
