@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import ownerService from '../../services/ownerService';
+import { handleError } from '../../utils/errorHandler';
 import './Monitoring.css';
 
 const Monitoring = () => {
@@ -9,16 +11,64 @@ const Monitoring = () => {
     kandang: 'Kandang A'
   });
 
-  const chartData = [
+  const [sensorData, setSensorData] = useState({
+    temperature: 35,
+    humidity: 75,
+    ammonia: 18,
+    status: 'Bahaya'
+  });
+
+  const [chartData, setChartData] = useState([
     { time: '00.00', value: 24 },
     { time: '04.00', value: 24 },
     { time: '08.00', value: 24 },
     { time: '12.00', value: 27 },
     { time: '16.00', value: 27 },
     { time: '20.00', value: 35 }
-  ];
+  ]);
 
+  const [selectedFarmId, setSelectedFarmId] = useState(1);
   const maxValue = 40;
+
+  useEffect(() => {
+    fetchMonitoringData();
+  }, [filters.timeRange, selectedFarmId]);
+
+  const fetchMonitoringData = async () => {
+    try {
+      const periodMap = {
+        '1 Hari Terakhir': '1day',
+        '1 Minggu Terakhir': '1week',
+        '1 Bulan Terakhir': '1month',
+        '6 Bulan Terakhir': '6months'
+      };
+      const period = periodMap[filters.timeRange] || '1day';
+
+      const response = await ownerService.getMonitoring(selectedFarmId, period);
+      const data = response.data.data || response.data;
+
+      if (data.current_sensor) {
+        setSensorData({
+          temperature: data.current_sensor.temperature || 35,
+          humidity: data.current_sensor.humidity || 75,
+          ammonia: data.current_sensor.ammonia || 18,
+          status: data.current_sensor.status || 'Bahaya'
+        });
+      }
+
+      if (data.historical_data && data.historical_data.length > 0) {
+        const formattedData = data.historical_data.map(item => ({
+          time: new Date(item.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+          value: item.temperature || 24
+        }));
+        setChartData(formattedData);
+      }
+    } catch (error) {
+      const errorMessage = handleError('Monitoring fetchData', error);
+      console.error(errorMessage);
+      // Fallback to mock data - already in state
+    }
+  };
 
   return (
     <div className="monitoring-container">
@@ -38,7 +88,7 @@ const Monitoring = () => {
           </div>
           <div className="metric-info">
             <span className="metric-label">Suhu Aktual</span>
-            <span className="metric-value">35°C</span>
+            <span className="metric-value">{sensorData.temperature}°C</span>
           </div>
         </div>
 
@@ -50,7 +100,7 @@ const Monitoring = () => {
           </div>
           <div className="metric-info">
             <span className="metric-label">Kelembapan Aktual</span>
-            <span className="metric-value">75%</span>
+            <span className="metric-value">{sensorData.humidity}%</span>
           </div>
         </div>
 
@@ -62,7 +112,7 @@ const Monitoring = () => {
           </div>
           <div className="metric-info">
             <span className="metric-label">Kadar Amonia</span>
-            <span className="metric-value">18 ppm</span>
+            <span className="metric-value">{sensorData.ammonia} ppm</span>
           </div>
         </div>
 
@@ -74,7 +124,7 @@ const Monitoring = () => {
           </div>
           <div className="metric-info">
             <span className="metric-label">Status Kandang</span>
-            <span className="status-badge-danger">Bahaya</span>
+            <span className="status-badge-danger">{sensorData.status}</span>
           </div>
         </div>
       </div>

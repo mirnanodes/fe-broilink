@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import ownerService from '../../services/ownerService';
+import { handleError } from '../../utils/errorHandler';
 import './DiagramAnalisis.css';
 
 const DiagramAnalisis = () => {
@@ -9,20 +11,63 @@ const DiagramAnalisis = () => {
     kandang: 'Kandang A'
   });
 
-  const chartData = [
+  const [chartData, setChartData] = useState([
     { time: '00.00', value: 7 },
     { time: '04.00', value: 14 },
     { time: '08.00', value: 2 },
     { time: '12.00', value: 3 },
     { time: '16.00', value: 14 },
     { time: '20.00', value: 5 }
-  ];
+  ]);
 
+  const [selectedFarmId, setSelectedFarmId] = useState(1);
   const maxValue = 20;
 
-  const handleExportExcel = () => {
-    console.log('Export to Excel');
-    alert('Fitur export ke Excel akan diimplementasikan');
+  useEffect(() => {
+    fetchAnalyticsData();
+  }, [filters.timeRange, selectedFarmId]);
+
+  const fetchAnalyticsData = async () => {
+    try {
+      const periodMap = {
+        '1 Hari Terakhir': '1day',
+        '1 Minggu Terakhir': '1week',
+        '1 Bulan Terakhir': '1month',
+        '6 Bulan Terakhir': '6months'
+      };
+      const period = periodMap[filters.timeRange] || '1day';
+
+      const response = await ownerService.getAnalytics(selectedFarmId, period);
+      const data = response.data.data || response.data;
+
+      if (data.manual_data && data.manual_data.length > 0) {
+        const formattedData = data.manual_data.map(item => ({
+          time: new Date(item.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+          value: item.konsumsi_pakan || 7
+        }));
+        setChartData(formattedData);
+      }
+    } catch (error) {
+      const errorMessage = handleError('DiagramAnalisis fetchData', error);
+      console.error(errorMessage);
+      // Fallback to mock data - already in state
+    }
+  };
+
+  const handleExportExcel = async () => {
+    try {
+      const response = await ownerService.exportData(selectedFarmId);
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `data-kandang-${selectedFarmId}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      const errorMessage = handleError('DiagramAnalisis exportData', error);
+      alert('Gagal export data: ' + errorMessage);
+    }
   };
 
   return (
