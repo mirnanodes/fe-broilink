@@ -36,7 +36,7 @@ const Login = ({ setIsLoggedIn, setUserRole }) => {
       // CRITICAL: Get CSRF cookie BEFORE login
       await getCsrfCookie();
 
-      const response = await axiosInstance.post('/api/login', {
+      const response = await axiosInstance.post('/login', {
         username: trimmedUsername,
         password: trimmedPassword,
       });

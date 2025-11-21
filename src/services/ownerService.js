@@ -8,7 +8,7 @@ class OwnerService {
       return { data: { success: true, data: mockOwnerData } };
     }
     try {
-      return await axiosInstance.get('/api/owner/dashboard');
+      return await axiosInstance.get('/owner/dashboard');
     } catch (error) {
       console.error('API error, using mock:', error);
       return { data: { success: true, data: mockOwnerData } };
@@ -20,7 +20,7 @@ class OwnerService {
       return { data: { success: true, data: mockOwnerData.farms } };
     }
     try {
-      return await axiosInstance.get('/api/owner/farms');
+      return await axiosInstance.get('/owner/farms');
     } catch (error) {
       console.error('API error, using mock:', error);
       return { data: { success: true, data: mockOwnerData.farms } };
@@ -40,7 +40,7 @@ class OwnerService {
       };
     }
     try {
-      return await axiosInstance.get(`/api/owner/farms/${farmId}/monitoring`, { params: { period } });
+      return await axiosInstance.get(`/owner/farms/${farmId}/monitoring`, { params: { period } });
     } catch (error) {
       console.error('API error, using mock:', error);
       return {
@@ -65,7 +65,7 @@ class OwnerService {
       };
     }
     try {
-      return await axiosInstance.get(`/api/owner/farms/${farmId}/analytics`, { params: { period } });
+      return await axiosInstance.get(`/owner/farms/${farmId}/analytics`, { params: { period } });
     } catch (error) {
       console.error('API error, using mock:', error);
       return {
@@ -83,7 +83,7 @@ class OwnerService {
       return { data: { success: true, message: 'Permintaan terkirim (mock)' } };
     }
     try {
-      return await axiosInstance.post('/api/owner/request-farm', data);
+      return await axiosInstance.post('/owner/request-farm', data);
     } catch (error) {
       console.error('API error:', error);
       throw error;

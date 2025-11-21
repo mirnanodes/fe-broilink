@@ -29,7 +29,7 @@ const DashboardAdmin = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await axiosInstance.get('/api/admin/dashboard');
+      const response = await axiosInstance.get(('/admin/dashboard');
       setStats(response.data.data);
     } catch (error) {
       console.error('Error fetching dashboard:', error.response || error.message);

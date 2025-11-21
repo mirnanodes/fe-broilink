@@ -1,8 +1,12 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
-  withCredentials: true,
+  baseURL: 'http://localhost:8000/api',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  },
+  withCredentials: true
 });
 
 axiosInstance.interceptors.request.use(
@@ -13,14 +17,17 @@ axiosInstance.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    return Promise.reject(error);
+  }
 );
 
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.clear();
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
       window.location.href = '/login';
     }
     return Promise.reject(error);
@@ -28,8 +35,9 @@ axiosInstance.interceptors.response.use(
 );
 
 export const getCsrfCookie = async () => {
-  const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
-  await axiosInstance.get(`${baseURL}/sanctum/csrf-cookie`);
+  await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
+    withCredentials: true
+  });
 };
 
 export default axiosInstance;

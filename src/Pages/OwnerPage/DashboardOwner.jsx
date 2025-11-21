@@ -30,7 +30,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axiosInstance.get('/api/owner/dashboard');
+        const response = await axiosInstance.get('/owner/dashboard');
         const data = response.data.data;
         
         // nb: update farm data kalau ada

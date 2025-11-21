@@ -69,7 +69,7 @@ const KonfigurasiKandang = () => {
   const fetchConfig = async () => {
     try {
       setLoading(true);
-      const response = await axiosInstance.get('/api/admin/farm-config');
+      const response = await axiosInstance.get(('/admin/farm-config');
       setConfig(response.data.data || mockConfig);
     } catch (error) {
       console.error('Error fetching config:', error);
@@ -96,7 +96,7 @@ const KonfigurasiKandang = () => {
     }
 
     try {
-      await axiosInstance.put('/api/admin/farm-config', config);
+      await axiosInstance.put(('/admin/farm-config', config);
       setModalMessage('Konfigurasi berhasil disimpan!');
       setShowSuccessModal(true);
     } catch (error) {
@@ -123,7 +123,7 @@ const KonfigurasiKandang = () => {
     }
 
     try {
-      await axiosInstance.post('/api/admin/farm-config/reset');
+      await axiosInstance.post(('/admin/farm-config/reset');
       setModalMessage('Konfigurasi berhasil direset ke default!');
       setShowResetModal(false);
       setShowSuccessModal(true);

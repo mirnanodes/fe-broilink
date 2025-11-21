@@ -78,7 +78,7 @@ const ManajemenPengguna = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await axiosInstance.get('/api/admin/users', {
+      const response = await axiosInstance.get(('/admin/users', {
         params: { page: currentPage }
       });
       const data = response.data.data;
@@ -108,7 +108,7 @@ const ManajemenPengguna = () => {
       return;
     }
     try {
-      const response = await axiosInstance.get('/api/admin/users', {
+      const response = await axiosInstance.get(('/admin/users', {
         params: { search: searchQuery }
       });
       setUsers(response.data.data.users || []);
@@ -120,7 +120,7 @@ const ManajemenPengguna = () => {
 
   const fetchOwners = async () => {
     try {
-      const response = await axiosInstance.get('/api/admin/users', {
+      const response = await axiosInstance.get(('/admin/users', {
         params: { role: 'Owner' }
       });
       setOwners(response.data.data.users || []);
@@ -145,7 +145,7 @@ const ManajemenPengguna = () => {
     }
     const formData = new FormData(e.target);
     try {
-      await axiosInstance.post('/api/admin/farms', {
+      await axiosInstance.post(('/admin/farms', {
         owner_id: selectedOwner.user_id,
         farm_name: formData.get('farm_name'),
         location: formData.get('location'),
@@ -192,7 +192,7 @@ const ManajemenPengguna = () => {
           payload.owner_id = formData.owner_id;
         }
 
-        await axiosInstance.post('/api/admin/users', payload);
+        await axiosInstance.post(('/admin/users', payload);
       } else if (modalType === 'edit') {
         await axiosInstance.put(`/api/admin/users/${selectedUser.user_id}`, formData);
       }

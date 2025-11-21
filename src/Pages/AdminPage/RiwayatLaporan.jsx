@@ -71,7 +71,7 @@ const RiwayatLaporan = () => {
     try {
       setLoading(true);
       const sortOrder = filter === 'Terbaru' ? 'desc' : 'asc';
-      const response = await axiosInstance.get('/api/admin/requests', {
+      const response = await axiosInstance.get(('/admin/requests', {
         params: { page: currentPage, sort: sortOrder }
       });
       setRequests(response.data.data || []);

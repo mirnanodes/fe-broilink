@@ -9,7 +9,7 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      await axiosInstance.post('/api/logout');
+      await axiosInstance.post('/logout');
     } catch (error) {
       console.error('Logout error:', error);
     } finally {

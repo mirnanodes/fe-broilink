@@ -21,7 +21,7 @@ const InputHasilKerja = () => {
     e.preventDefault();
 
     try {
-      await axiosInstance.post('/api/peternak/manual-data', {
+      await axiosInstance.post('/peternak/manual-data', {
         report_date: new Date().toISOString().split('T')[0],
         konsumsi_pakan: parseFloat(formData.laporanPakan),
         konsumsi_air: parseFloat(formData.laporanMinum),
