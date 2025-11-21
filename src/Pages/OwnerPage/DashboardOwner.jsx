@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axiosInstance from '../../utils/axios';
 import RequestModal from '../../components/RequestModal';
+import './DashboardOwner.css';
 
 const Dashboard = () => {
   const [selectedFilter, setSelectedFilter] = useState('Mortalitas');
