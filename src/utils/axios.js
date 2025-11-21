@@ -16,7 +16,6 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Handle 401 - redirect ke login
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -28,7 +27,6 @@ axiosInstance.interceptors.response.use(
   }
 );
 
-// CSRF Cookie Fetcher - MUST be called before login
 export const getCsrfCookie = async () => {
   const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   await axiosInstance.get(`${baseURL}/sanctum/csrf-cookie`);
