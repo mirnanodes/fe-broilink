@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axiosInstance, { getCsrfCookie } from '../utils/axios';
 
 const BroilinkLogo = () => (
-  <div className="broilink-logo-container">
-    <span className="broilink-logo-text">Broilink</span>
+  <div className="flex items-center text-2xl font-bold mb-5">
+    <span className="text-xl">Broilink</span>
   </div>
 );
 
@@ -74,75 +74,108 @@ const Login = ({ setIsLoggedIn, setUserRole }) => {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-box">
-        <div className="login-form-side">
-          <h1 className="welcome-title">Selamat Datang</h1>
-          <p className="subtitle">Masuk ke akun Broilink Anda</p>
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <div className="flex w-[900px] shadow-lg rounded-lg overflow-hidden">
+        {/* Left Side - Login Form */}
+        <div className="flex-1 px-12 py-16 bg-white">
+          <h1 className="text-3xl font-bold text-gray-800 mb-1">Selamat Datang</h1>
+          <p className="text-base text-gray-600 mb-10">Masuk ke akun Broilink Anda</p>
 
-          <form className="login-form" onSubmit={handleSubmit}>
-            {error && <p className="error-message" style={{ color: 'red', marginBottom: '10px' }}>{error}</p>}
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            {error && (
+              <p className="text-red-500 text-sm mb-4">{error}</p>
+            )}
 
-            <label htmlFor="username">Username</label>
-            <input
-              id="username"
-              name="username"
-              type="text"
-              placeholder="Masukkan username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              autoComplete="username"
-            />
-
-            <label htmlFor="password">Password</label>
-            <div className="password-input-wrapper">
+            <div>
+              <label htmlFor="username" className="block mb-1 text-sm font-semibold text-gray-800">
+                Username
+              </label>
               <input
-                id="password"
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Masukkan password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
+                id="username"
+                name="username"
+                type="text"
+                placeholder="Masukkan username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                autoComplete="username"
+                className="w-full px-3 py-3 border border-gray-300 rounded text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
-              <span
-                className="toggle-password"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? '👁️' : '👁️'}
-              </span>
             </div>
 
-            <div className="remember-me-checkbox">
+            <div>
+              <label htmlFor="password" className="block mb-1 text-sm font-semibold text-gray-800">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Masukkan password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                  className="w-full px-3 py-3 pr-10 border border-gray-300 rounded text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+                <span
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-500"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? '👁️' : '👁️'}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center my-4">
               <input
                 id="rememberMe"
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 cursor-pointer"
               />
-              <label htmlFor="rememberMe">Ingat Saya</label>
+              <label htmlFor="rememberMe" className="ml-2 text-sm text-gray-600 cursor-pointer">
+                Ingat Saya
+              </label>
             </div>
 
-            <button type="submit" className="login-button">
+            <button
+              type="submit"
+              className="w-full py-3.5 bg-blue-600 text-white rounded text-base font-bold hover:bg-blue-700 transition-colors"
+            >
               Masuk
             </button>
           </form>
 
-          <div className="form-links">
-            <a href="#lupa-password" className="link-forgot">Lupa Password?</a>
-            <a href="#masalah-akun" className="link-issue">Ada Masalah Akun?</a>
+          <div className="text-center mt-6 space-x-5">
+            <a href="#lupa-password" className="text-sm text-blue-600 hover:text-blue-700 transition-colors">
+              Lupa Password?
+            </a>
+            <a href="#masalah-akun" className="text-sm text-blue-600 hover:text-blue-700 transition-colors">
+              Ada Masalah Akun?
+            </a>
           </div>
         </div>
 
-        <div className="product-info-side">
+        {/* Right Side - Product Info */}
+        <div className="flex-1 px-10 py-16 bg-gray-100 flex flex-col justify-center">
           <BroilinkLogo />
-          <p className="tagline">
+          <p className="text-sm leading-relaxed text-gray-600 mb-10">
             Teknologi pintar untuk peternakan ayam broiler yang lebih efisien dan produktif
           </p>
-          <ul className="feature-list">
-            <li><span className="dot dot-green"></span> Monitoring Real-time</li>
-            <li><span className="dot dot-blue"></span> Analisis Data Cerdas</li>
-            <li><span className="dot dot-green"></span> Otomasi Kandang</li>
+          <ul className="space-y-4">
+            <li className="flex items-center text-base text-gray-800">
+              <span className="inline-block w-2.5 h-2.5 bg-green-500 rounded-full mr-2.5 blur-[1.5px]"></span>
+              Monitoring Real-time
+            </li>
+            <li className="flex items-center text-base text-gray-800">
+              <span className="inline-block w-2.5 h-2.5 bg-blue-600 rounded-full mr-2.5 blur-[1.5px]"></span>
+              Analisis Data Cerdas
+            </li>
+            <li className="flex items-center text-base text-gray-800">
+              <span className="inline-block w-2.5 h-2.5 bg-green-500 rounded-full mr-2.5 blur-[1.5px]"></span>
+              Otomasi Kandang
+            </li>
           </ul>
         </div>
       </div>
