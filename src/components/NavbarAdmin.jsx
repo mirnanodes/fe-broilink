@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '../utils/axios';
 
 const Header = () => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -9,7 +9,7 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post('/api/logout');
+      await axiosInstance.post('/api/logout');
     } catch (error) {
       console.error('Logout error:', error);
     } finally {

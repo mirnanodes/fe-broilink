@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'; // nb: tambah useEffect
-import axios from 'axios'; // nb: import axios
+import React, { useState, useEffect } from 'react';
+import axiosInstance from '../../utils/axios';
 import './DashboardOwner.css';
 
 const Dashboard = () => {
@@ -31,8 +31,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
-        const response = await axios.get('/api/owner/dashboard');
+        const response = await axiosInstance.get('/api/owner/dashboard');
         const data = response.data.data;
         
         // nb: update farm data kalau ada

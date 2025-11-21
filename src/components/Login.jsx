@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance, { getCsrfCookie } from '../utils/axios';
 import './Login.css';
 
 const BroilinkLogo = () => (
@@ -34,7 +34,10 @@ const Login = ({ setIsLoggedIn, setUserRole }) => {
     }
 
     try {
-      const response = await axios.post('/api/login', {
+      // CRITICAL: Get CSRF cookie BEFORE login
+      await getCsrfCookie();
+
+      const response = await axiosInstance.post('/api/login', {
         username: trimmedUsername,
         password: trimmedPassword,
       });

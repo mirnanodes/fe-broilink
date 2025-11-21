@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios'; // nb: import axios
+import axiosInstance from '../../utils/axios';
 import './InputKerjaFarm.css';
 
 const InputHasilKerja = () => {
@@ -18,20 +18,17 @@ const InputHasilKerja = () => {
     }));
   };
 
-  // nb: ubah handleSubmit pakai axios, HTML TETAP SAMA
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
-      
-      await axios.post('/api/peternak/manual-data', {
+      await axiosInstance.post('/api/peternak/manual-data', {
         report_date: new Date().toISOString().split('T')[0],
         konsumsi_pakan: parseFloat(formData.laporanPakan),
         konsumsi_air: parseFloat(formData.laporanMinum),
         jumlah_kematian: parseInt(formData.tingkatKematian)
       });
-      
+
       alert('Data berhasil dikirim!');
       setFormData({ laporanPakan: '', laporanMinum: '', laporanSampling: '', tingkatKematian: '' });
     } catch (error) {

@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
+  withCredentials: true,
 });
 
 axiosInstance.interceptors.request.use(
@@ -26,5 +27,11 @@ axiosInstance.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// CSRF Cookie Fetcher - MUST be called before login
+export const getCsrfCookie = async () => {
+  const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+  await axiosInstance.get(`${baseURL}/sanctum/csrf-cookie`);
+};
 
 export default axiosInstance;
