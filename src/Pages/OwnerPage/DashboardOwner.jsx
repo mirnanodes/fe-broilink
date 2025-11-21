@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react'; // nb: tambah useEffect
-import axios from 'axios'; // nb: import axios
+import React, { useState, useEffect } from 'react';
+import ownerService from '../../services/ownerService';
+import { handleError } from '../../utils/errorHandler';
 import './DashboardOwner.css';
 
 const Dashboard = () => {
   const [selectedFilter, setSelectedFilter] = useState('Mortalitas');
-  
-  // nb: state dengan default data, struktur HTML TETAP SAMA
+
   const [farmData, setFarmData] = useState({
     name: 'Kandang A',
     status: 'Waspada',
     temp: '35°C'
   });
-  
+
   const [activities, setActivities] = useState([
     { time: '18.30', activity: 'Update Indikator', detail: 'Kelembapan: 70%', status: 'Normal' },
     { time: '17.56', activity: 'Laporan Minum', detail: 'oleh Budi', status: 'Info' },
@@ -20,48 +20,46 @@ const Dashboard = () => {
     { time: '07.30', activity: 'Update Indikator', detail: 'Suhu: 35,1°C', status: 'Bahaya' }
   ]);
 
-  const chartData = [
-    { time: '00:00' },
-    { time: '12:00' },
-    { time: '18:00' },
-    { time: '06:00' },
-  ];
+  const [chartData, setChartData] = useState([
+    { time: '00:00', value: 3 },
+    { time: '12:00', value: 5 },
+    { time: '18:00', value: 2 },
+    { time: '06:00', value: 4 },
+  ]);
 
-  // nb: fetch data dari API
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
-        const response = await axios.get('/api/owner/dashboard');
-        const data = response.data.data;
-        
-        // nb: update farm data kalau ada
-        if (data.farms && data.farms.length > 0) {
-          const firstFarm = data.farms[0];
-          setFarmData({
-            name: firstFarm.farm_name,
-            status: firstFarm.status,
-            temp: firstFarm.latest_sensor ? `${firstFarm.latest_sensor.temperature}°C` : '35°C'
-          });
-        }
-        
-        // nb: update activities kalau ada
-        if (data.recent_reports && data.recent_reports.length > 0) {
-          const acts = data.recent_reports.map(r => ({
-            time: new Date(r.created_at).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}),
-            activity: 'Laporan Manual',
-            detail: `Pakan: ${r.konsumsi_pakan}kg`,
-            status: 'Info'
-          }));
-          setActivities(acts);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        // nb: kalau error, pakai data default
-      }
-    };
-    fetchData();
+    fetchDashboardData();
   }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      const response = await ownerService.getDashboard();
+      const data = response.data.data || response.data;
+
+      if (data.farms && data.farms.length > 0) {
+        const firstFarm = data.farms[0];
+        setFarmData({
+          name: firstFarm.farm_name || firstFarm.name,
+          status: firstFarm.status || 'Waspada',
+          temp: firstFarm.latest_sensor ? `${firstFarm.latest_sensor.temperature}°C` : '35°C'
+        });
+      }
+
+      if (data.recent_reports && data.recent_reports.length > 0) {
+        const acts = data.recent_reports.map(r => ({
+          time: new Date(r.created_at).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}),
+          activity: 'Laporan Manual',
+          detail: `Pakan: ${r.konsumsi_pakan}kg`,
+          status: 'Info'
+        }));
+        setActivities(acts);
+      }
+    } catch (error) {
+      const errorMessage = handleError('DashboardOwner fetchData', error);
+      console.error(errorMessage);
+      // Mock data already in state - will be displayed automatically
+    }
+  };
 
   const handlePengajuan = () => {
     console.log('Pengajuan Permintaan');
