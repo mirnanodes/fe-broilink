@@ -5,7 +5,69 @@ import NavbarAdmin from '../../components/NavbarAdmin';
 import SidebarAdmin from '../../components/SidebarAdmin';
 
 const RiwayatLaporan = () => {
-  const [requests, setRequests] = useState([]);
+  // Initialize with mock data
+  const [requests, setRequests] = useState([
+    {
+      id: 1,
+      name: 'Budi Santoso',
+      role: 'Owner',
+      user: { name: 'Budi Santoso', role: { name: 'Owner' } },
+      phone: '+62812-3456-7890',
+      whatsapp: '+62812-3456-7890',
+      created_at: '2025-11-20T14:30:00Z',
+      request_type: 'Permintaan reset password',
+      detail: 'Permintaan reset password',
+      status: 'menunggu'
+    },
+    {
+      id: 2,
+      name: 'Siti Aminah',
+      role: 'Peternak',
+      user: { name: 'Siti Aminah', role: { name: 'Peternak' } },
+      phone: '+62813-9876-5432',
+      whatsapp: '+62813-9876-5432',
+      created_at: '2025-11-20T11:15:00Z',
+      request_type: 'Laporan error sistem',
+      detail: 'Laporan error sistem',
+      status: 'diproses'
+    },
+    {
+      id: 3,
+      name: 'Andi Wijaya',
+      role: 'Owner',
+      user: { name: 'Andi Wijaya', role: { name: 'Owner' } },
+      phone: '+62815-2468-1357',
+      whatsapp: '+62815-2468-1357',
+      created_at: '2025-11-19T09:45:00Z',
+      request_type: 'Permintaan akses kandang baru',
+      detail: 'Permintaan akses kandang baru',
+      status: 'selesai'
+    },
+    {
+      id: 4,
+      name: 'Dewi Lestari',
+      role: 'Peternak',
+      user: { name: 'Dewi Lestari', role: { name: 'Peternak' } },
+      phone: '+62817-5555-8888',
+      whatsapp: '+62817-5555-8888',
+      created_at: '2025-11-18T16:20:00Z',
+      request_type: 'Pertanyaan teknis',
+      detail: 'Pertanyaan teknis',
+      status: 'selesai'
+    },
+    {
+      id: 5,
+      name: 'Rudi Hartono',
+      role: 'Guest',
+      user: { name: 'Rudi Hartono', role: { name: 'Guest' } },
+      phone: '+62819-1111-2222',
+      whatsapp: '+62819-1111-2222',
+      created_at: '2025-11-18T10:00:00Z',
+      request_type: 'Masalah login',
+      detail: 'Masalah login',
+      status: 'ditolak'
+    }
+  ]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState('Terbaru');
   const [currentPage, setCurrentPage] = useState(1);
@@ -22,73 +84,15 @@ const RiwayatLaporan = () => {
       const sortOrder = filter === 'Terbaru' ? 'newest' : 'oldest';
       const response = await adminService.getRequests(sortOrder, currentPage);
       const data = response.data.data || response.data;
-      setRequests(data.requests || data || []);
+      if (data && data.requests) {
+        setRequests(data.requests);
+      } else if (data && Array.isArray(data)) {
+        setRequests(data);
+      }
     } catch (error) {
       const errorMessage = handleError('RiwayatLaporan fetchRequests', error);
       console.error(errorMessage);
-      // Fallback to mock data when API fails
-      setRequests([
-        {
-          id: 1,
-          name: 'Budi Santoso',
-          role: 'Owner',
-          user: { name: 'Budi Santoso', role: { name: 'Owner' } },
-          phone: '+62812-3456-7890',
-          whatsapp: '+62812-3456-7890',
-          created_at: '2025-11-20T14:30:00Z',
-          request_type: 'Permintaan reset password',
-          detail: 'Permintaan reset password',
-          status: 'menunggu'
-        },
-        {
-          id: 2,
-          name: 'Siti Aminah',
-          role: 'Peternak',
-          user: { name: 'Siti Aminah', role: { name: 'Peternak' } },
-          phone: '+62813-9876-5432',
-          whatsapp: '+62813-9876-5432',
-          created_at: '2025-11-20T11:15:00Z',
-          request_type: 'Laporan error sistem',
-          detail: 'Laporan error sistem',
-          status: 'diproses'
-        },
-        {
-          id: 3,
-          name: 'Andi Wijaya',
-          role: 'Owner',
-          user: { name: 'Andi Wijaya', role: { name: 'Owner' } },
-          phone: '+62815-2468-1357',
-          whatsapp: '+62815-2468-1357',
-          created_at: '2025-11-19T09:45:00Z',
-          request_type: 'Permintaan akses kandang baru',
-          detail: 'Permintaan akses kandang baru',
-          status: 'selesai'
-        },
-        {
-          id: 4,
-          name: 'Dewi Lestari',
-          role: 'Peternak',
-          user: { name: 'Dewi Lestari', role: { name: 'Peternak' } },
-          phone: '+62817-5555-8888',
-          whatsapp: '+62817-5555-8888',
-          created_at: '2025-11-18T16:20:00Z',
-          request_type: 'Pertanyaan teknis',
-          detail: 'Pertanyaan teknis',
-          status: 'selesai'
-        },
-        {
-          id: 5,
-          name: 'Rudi Hartono',
-          role: 'Guest',
-          user: { name: 'Rudi Hartono', role: { name: 'Guest' } },
-          phone: '+62819-1111-2222',
-          whatsapp: '+62819-1111-2222',
-          created_at: '2025-11-18T10:00:00Z',
-          request_type: 'Masalah login',
-          detail: 'Masalah login',
-          status: 'ditolak'
-        }
-      ]);
+      // Keep mock data (already in state)
     } finally {
       setLoading(false);
     }
