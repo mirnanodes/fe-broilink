@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import LandingPage from './Pages/LandingPage/LandingPage';
 import Login from './components/Login.jsx';
 import AccountIssues from './components/AccountIssues.jsx';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
 
 import AdminLayout from './Pages/AdminPage/AdminLayout';
 import DashboardAdmin from './Pages/AdminPage/DashboardAdmin';
@@ -21,21 +22,6 @@ import PeternakLayout from './Pages/PeternakPage/PeternakLayout';
 import DashboardPeternak from './Pages/PeternakPage/DashboardPeternak';
 import InputHasilKerja from './Pages/PeternakPage/InputHasilKerja';
 import ProfilePeternak from './Pages/PeternakPage/ProfilePeternak';
-
-const ProtectedRoute = ({ children, allowedRole }) => {
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-  const userRole = localStorage.getItem('userRole');
-
-  if (!isLoggedIn) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (allowedRole && userRole !== allowedRole) {
-    return <Navigate to="/" replace />;
-  }
-
-  return children;
-};
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -64,7 +50,7 @@ function App() {
         />
 
         <Route path="/admin" element={
-          <ProtectedRoute allowedRole="Admin">
+          <ProtectedRoute allowedRoles={["Admin"]}>
             <AdminLayout />
           </ProtectedRoute>
         }>
@@ -76,7 +62,7 @@ function App() {
         </Route>
 
         <Route path="/owner" element={
-          <ProtectedRoute allowedRole="Owner">
+          <ProtectedRoute allowedRoles={["Owner"]}>
             <OwnerLayout />
           </ProtectedRoute>
         }>
@@ -88,7 +74,7 @@ function App() {
         </Route>
 
         <Route path="/peternak" element={
-          <ProtectedRoute allowedRole="Peternak">
+          <ProtectedRoute allowedRoles={["Peternak"]}>
             <PeternakLayout />
           </ProtectedRoute>
         }>

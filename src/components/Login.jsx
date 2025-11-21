@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { Eye, EyeOff } from 'lucide-react';
+import authService from '../services/authService';
+import { handleError } from '../utils/errorHandler';
 
 const BroilinkLogo = () => (
   <div className="flex items-center gap-2">
@@ -22,6 +23,7 @@ const Login = ({ setIsLoggedIn, setUserRole }) => {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,41 +41,37 @@ const Login = ({ setIsLoggedIn, setUserRole }) => {
       return;
     }
 
+    setLoading(true);
+
     try {
-      const response = await axios.post('/api/login', {
-        username: trimmedUsername,
-        password: trimmedPassword,
-      });
+      const response = await authService.login(trimmedUsername, trimmedPassword);
 
-      const { user, token } = response.data.data;
+      if (response.success || response.token) {
+        const user = response.user || response.data?.user;
 
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('token', token);
-      localStorage.setItem('userRole', user.role);
+        // Update parent component state if provided
+        if (setIsLoggedIn) setIsLoggedIn(true);
+        if (setUserRole) setUserRole(user.role);
 
-      if (setIsLoggedIn) setIsLoggedIn(true);
-      if (setUserRole) setUserRole(user.role);
-
-      if (user.role === 'Admin') {
-        navigate('/admin/dashboard');
-      } else if (user.role === 'Owner') {
-        navigate('/owner/dashboard');
-      } else if (user.role === 'Peternak') {
-        navigate('/peternak');
+        // Redirect based on role
+        if (user.role === 'Admin') {
+          navigate('/admin/dashboard');
+        } else if (user.role === 'Owner') {
+          navigate('/owner/dashboard');
+        } else if (user.role === 'Peternak') {
+          navigate('/peternak/dashboard');
+        } else {
+          setError('Role pengguna tidak dikenal');
+          localStorage.clear();
+        }
       } else {
-        setError('Role pengguna tidak dikenal');
-        localStorage.clear();
+        setError(response.message || 'Login gagal');
       }
     } catch (err) {
-      console.error('Login Error:', err.response);
-
-      if (err.response && err.response.status === 401) {
-        setError('Username atau Password salah');
-      } else if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else {
-        setError('Terjadi kesalahan koneksi atau server');
-      }
+      const errorMessage = handleError('Login', err);
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -105,6 +103,7 @@ const Login = ({ setIsLoggedIn, setUserRole }) => {
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                 autoComplete="username"
+                disabled={loading}
               />
             </div>
 
@@ -122,11 +121,13 @@ const Login = ({ setIsLoggedIn, setUserRole }) => {
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition pr-12"
                   autoComplete="current-password"
+                  disabled={loading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  disabled={loading}
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -141,6 +142,7 @@ const Login = ({ setIsLoggedIn, setUserRole }) => {
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
                 className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                disabled={loading}
               />
               <label htmlFor="rememberMe" className="ml-2 text-sm text-gray-700">
                 Ingat Saya
@@ -150,9 +152,20 @@ const Login = ({ setIsLoggedIn, setUserRole }) => {
             {/* Login Button */}
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition duration-200"
+              disabled={loading}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
-              Masuk
+              {loading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Masuk...
+                </>
+              ) : (
+                'Masuk'
+              )}
             </button>
           </form>
 
@@ -161,12 +174,14 @@ const Login = ({ setIsLoggedIn, setUserRole }) => {
             <button
               onClick={() => navigate('/register')}
               className="text-blue-600 hover:text-blue-700"
+              disabled={loading}
             >
               Belum Punya Akun? <span className="font-medium">Daftar Sekarang!</span>
             </button>
             <button
               onClick={() => navigate('/account-issues')}
               className="text-blue-600 hover:text-blue-700"
+              disabled={loading}
             >
               Ada Masalah Akun?
             </button>
